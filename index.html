@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 Guida a Suno AI – Crea Musica con l'IA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+
+  :root {
+    --pink: #FF6B9D;
+    --purple: #C471ED;
+    --blue: #12CBC4;
+    --yellow: #FECA57;
+    --orange: #FF9F43;
+    --dark: #1a1a2e;
+    --card-bg: rgba(255,255,255,0.07);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--dark);
+    color: #f0f0f0;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  .bg-animation {
+    position: fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(196,113,237,.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(18,203,196,.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(255,107,157,.1) 0%, transparent 50%);
+  }
+
+  /* Floating music notes */
+  .notes-container {
+    position: fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  }
+  .note {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.08;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0deg); opacity:0; }
+    10% { opacity:0.1; }
+    90% { opacity:0.06; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity:0; }
+  }
+
+  .container { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:0 20px; }
+
+  /* HERO */
+  .hero {
+    text-align:center;
+    padding: 80px 0 60px;
+    position: relative;
+  }
+  .hero-icon {
+    font-size: 5rem;
+    animation: bounce 2s ease-in-out infinite;
+    display: inline-block;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin: 20px 0 10px;
+  }
+  .hero .subtitle {
+    font-size: 1.2rem;
+    color: #b0b0c0;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+  }
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    color: #fff;
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: .85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 25px rgba(196,113,237,.4);
+  }
+
+  /* Vinyl decoration */
+  .vinyl-divider {
+    text-align: center;
+    margin: 30px 0;
+    position: relative;
+  }
+  .vinyl {
+    display: inline-block;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #222, #444, #222, #444, #222);
+    border: 3px solid #555;
+    position: relative;
+    animation: spin 4s linear infinite;
+  }
+  .vinyl::after {
+    content:'';
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:20px; height:20px;
+    border-radius:50%;
+    background: var(--yellow);
+    border: 2px solid #333;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* INTRO BOX */
+  .intro-box {
+    background: linear-gradient(135deg, rgba(196,113,237,.15), rgba(18,203,196,.1));
+    border: 1px solid rgba(196,113,237,.25);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+    text-align: center;
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
+
+  /* SECTION CARDS */
+  .section-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    padding: 35px 30px;
+    margin-bottom: 30px;
+    transition: transform .3s, box-shadow .3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.3);
+  }
+  .section-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 20px 20px 0 0;
+  }
+  .section-card:nth-child(8n+1)::before { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+  .section-card:nth-child(8n+2)::before { background: linear-gradient(90deg, var(--purple), var(--blue)); }
+  .section-card:nth-child(8n+3)::before { background: linear-gradient(90deg, var(--blue), var(--yellow)); }
+  .section-card:nth-child(8n+4)::before { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
+  .section-card:nth-child(8n+5)::before { background: linear-gradient(90deg, var(--orange), var(--pink)); }
+  .section-card:nth-child(8n+6)::before { background: linear-gradient(90deg, var(--pink), var(--blue)); }
+  .section-card:nth-child(8n+7)::before { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+  .section-card:nth-child(8n+8)::before { background: linear-gradient(90deg, var(--yellow), var(--pink)); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+  }
+  .card-number {
+    min-width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #fff;
+  }
+  .section-card:nth-child(8n+1) .card-number { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+  .section-card:nth-child(8n+2) .card-number { background: linear-gradient(135deg, var(--purple), var(--blue)); }
+  .section-card:nth-child(8n+3) .card-number { background: linear-gradient(135deg, var(--blue), var(--yellow)); }
+  .section-card:nth-child(8n+4) .card-number { background: linear-gradient(135deg, var(--yellow), var(--orange)); }
+  .section-card:nth-child(8n+5) .card-number { background: linear-gradient(135deg, var(--orange), var(--pink)); }
+  .section-card:nth-child(8n+6) .card-number { background: linear-gradient(135deg, var(--pink), var(--blue)); }
+  .section-card:nth-child(8n+7) .card-number { background: linear-gradient(135deg, var(--blue), var(--purple)); }
+  .section-card:nth-child(8n+8) .card-number { background: linear-gradient(135deg, var(--yellow), var(--pink)); }
+
+  .card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .card-icon {
+    font-size: 1.8rem;
+    margin-left: auto;
+  }
+
+  .card-body { line-height: 1.8; color: #ccc; font-size: .97rem; }
+  .card-body p { margin-bottom: 12px; }
+
+  .tip {
+    background: rgba(254,202,87,.08);
+    border-left: 3px solid var(--yellow);
+    padding: 12px 16px;
+    border-radius: 0 12px 12px 0;
+    margin: 14px 0;
+    font-size: .93rem;
+  }
+  .tip strong { color: var(--yellow); }
+
+  .example {
+    background: rgba(18,203,196,.08);
+    border-left: 3px solid var(--blue);
+    padding: 12px 16px;
+    border-radius: 0 12px 12px 0;
+    margin: 14px 0;
+    font-size: .93rem;
+  }
+  .example strong { color: var(--blue); }
+
+  code {
+    background: rgba(255,255,255,.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: .9em;
+    color: var(--yellow);
+  }
+
+  /* Equalizer animation */
+  .equalizer {
+    display: flex; gap: 4px; align-items: flex-end;
+    height: 40px; justify-content: center; margin: 30px 0;
+  }
+  .eq-bar {
+    width: 6px;
+    border-radius: 3px;
+    animation: eqPulse 1s ease-in-out infinite alternate;
+  }
+  .eq-bar:nth-child(1) { background:var(--pink); animation-delay:0s; }
+  .eq-bar:nth-child(2) { background:var(--purple); animation-delay:.15s; }
+  .eq-bar:nth-child(3) { background:var(--blue); animation-delay:.3s; }
+  .eq-bar:nth-child(4) { background:var(--yellow); animation-delay:.45s; }
+  .eq-bar:nth-child(5) { background:var(--orange); animation-delay:.6s; }
+  .eq-bar:nth-child(6) { background:var(--pink); animation-delay:.75s; }
+  .eq-bar:nth-child(7) { background:var(--purple); animation-delay:.9s; }
+  .eq-bar:nth-child(8) { background:var(--blue); animation-delay:1.05s; }
+  .eq-bar:nth-child(9) { background:var(--yellow); animation-delay:1.2s; }
+  @keyframes eqPulse {
+    0% { height: 8px; }
+    100% { height: 38px; }
+  }
+
+  /* Steps list */
+  .steps-list {
+    counter-reset: step;
+    padding-left: 0;
+    list-style: none;
+  }
+  .steps-list li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 36px;
+    margin-bottom: 10px;
+  }
+  .steps-list li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 1px;
+    width: 24px; height: 24px;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700; color: #fff;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 50px 20px 30px;
+    color: #666;
+    font-size: .85rem;
+  }
+  footer .hearts { font-size: 1.5rem; margin-bottom: 8px; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .section-card { padding: 24px 18px; }
+    .hero { padding: 50px 0 40px; }
+    .card-header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-animation"></div>
+
+<!-- Floating notes -->
+<div class="notes-container" id="notes"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-icon">🎧</div>
+    <h1>Guida a Suno AI</h1>
+    <p class="subtitle">Crea brani musicali completi in pochi secondi con l'intelligenza artificiale. La guida pratica per iniziare subito!</p>
+    <span class="badge">🎤 dall'idea alla canzone in un click</span>
+  </section>
+
+  <div class="vinyl-divider"><div class="vinyl"></div></div>
+
+  <!-- INTRO -->
+  <div class="intro-box">
+    🎶 <strong>Suno AI</strong> è una piattaforma che permette di creare brani musicali completi partendo da una semplice descrizione testuale. Oltre a generare canzoni, è utilissima per creare <strong>basi musicali</strong>, sperimentare nuovi generi, fornire <strong>linee melodiche di ispirazione</strong> e offrire tracce mirate per <strong>esercitarsi con gli strumenti</strong>. 🎶
+  </div>
+
+  <!-- PRICING -->
+  <div class="section-card" style="border:1px solid rgba(254,202,87,.25); background: linear-gradient(135deg, rgba(254,202,87,.08), rgba(255,159,67,.06));">
+    <div class="card-header">
+      <div class="card-number" style="background:linear-gradient(135deg, var(--yellow), var(--orange));">💰</div>
+      <div class="card-title">Crediti e Prezzi</div>
+      <div class="card-icon">🎫</div>
+    </div>
+    <div class="card-body">
+      <p>Suno AI funziona con un sistema a <strong>crediti</strong>: ogni brano generato consuma crediti. Ecco i piani disponibili:</p>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin:20px 0;">
+
+        <!-- Free -->
+        <div style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:20px; text-align:center;">
+          <div style="font-size:1.6rem;">🆓</div>
+          <h3 style="color:var(--blue); font-size:1.1rem; margin:8px 0;">Free</h3>
+          <div style="font-size:2rem; font-weight:800; color:#fff;">€0</div>
+          <div style="color:#888; font-size:.85rem; margin-bottom:12px;">per sempre</div>
+          <div style="text-align:left; font-size:.88rem; line-height:2;">
+            ✅ 50 crediti al giorno<br>
+            ✅ ~10 brani al giorno<br>
+            ⚠️ Solo uso <strong>non commerciale</strong><br>
+            ⚠️ Coda condivisa<br>
+            ⚠️ Upload audio: max 1 min
+          </div>
+        </div>
+
+        <!-- Pro -->
+        <div style="background:rgba(196,113,237,.1); border:2px solid rgba(196,113,237,.35); border-radius:16px; padding:20px; text-align:center; position:relative;">
+          <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--purple); color:#fff; font-size:.7rem; font-weight:700; padding:3px 14px; border-radius:20px; text-transform:uppercase;">Consigliato</div>
+          <div style="font-size:1.6rem;">⭐</div>
+          <h3 style="color:var(--purple); font-size:1.1rem; margin:8px 0;">Pro</h3>
+          <div style="font-size:2rem; font-weight:800; color:#fff;">$10<span style="font-size:.9rem; font-weight:400; color:#aaa;">/mese</span></div>
+          <div style="color:#888; font-size:.85rem; margin-bottom:12px;">$8/mese se annuale</div>
+          <div style="text-align:left; font-size:.88rem; line-height:2;">
+            ✅ 2.500 crediti al mese<br>
+            ✅ ~500 brani al mese<br>
+            ✅ Uso <strong>commerciale</strong><br>
+            ✅ Coda prioritaria<br>
+            ✅ Modello più recente (V5)<br>
+            ✅ Upload audio: max 8 min
+          </div>
+        </div>
+
+        <!-- Premier -->
+        <div style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:20px; text-align:center;">
+          <div style="font-size:1.6rem;">🚀</div>
+          <h3 style="color:var(--orange); font-size:1.1rem; margin:8px 0;">Premier</h3>
+          <div style="font-size:2rem; font-weight:800; color:#fff;">$30<span style="font-size:.9rem; font-weight:400; color:#aaa;">/mese</span></div>
+          <div style="color:#888; font-size:.85rem; margin-bottom:12px;">$24/mese se annuale</div>
+          <div style="text-align:left; font-size:.88rem; line-height:2;">
+            ✅ 10.000 crediti al mese<br>
+            ✅ ~2.000 brani al mese<br>
+            ✅ Uso <strong>commerciale</strong><br>
+            ✅ Accesso a Suno Studio<br>
+            ✅ Tutte le funzioni avanzate<br>
+            ✅ Acquisto crediti extra
+          </div>
+        </div>
+
+      </div>
+
+      <div class="tip">
+        <strong>⚠️ Nota importante:</strong> I crediti dei piani a pagamento <strong>non si accumulano</strong> di mese in mese: se non li usi, li perdi. I crediti acquistati a parte, invece, non scadono (ma serve un abbonamento attivo). Ogni generazione fallita consuma comunque crediti, quindi vale la pena scrivere prompt precisi!
+      </div>
+    </div>
+  </div>
+
+  <!-- EQUALIZER -->
+  <div class="equalizer">
+    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+  </div>
+
+  <!-- CARDS -->
+
+  <!-- 1 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">1</div>
+      <div class="card-title">Creazione di Base</div>
+      <div class="card-icon">🚀</div>
+    </div>
+    <div class="card-body">
+      <p>La modalità più semplice, perfetta per iniziare.</p>
+      <p>Dalla schermata <strong>"Home"</strong>, clicca in alto a sinistra sul pulsante <strong>"Create"</strong>. Nella casella di descrizione, digita cosa vuoi ottenere. Clicca su <strong>"Create"</strong> e attendi: il brano verrà salvato automaticamente nella lista al centro dello schermo.</p>
+      <div class="example">
+        <strong>💡 Esempio di prompt:</strong><br>
+        <code>1980 disco POP, testo che racconta una discoteca di robot</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">2</div>
+      <div class="card-title">Custom Mode: Testi e Stile con Gemini, ChatGPT & co.</div>
+      <div class="card-icon">✍️</div>
+    </div>
+    <div class="card-body">
+      <p>Per un controllo maggiore, abilita la <strong>Custom Mode</strong> (Modalità Personalizzata): puoi inserire il tuo testo e definire lo stile esatto nel campo <em>"Stile della Musica"</em> (es. <code>Dark Indian Pop</code>).</p>
+      <p>Il modo migliore per creare testi e stile è usare un'<strong>intelligenza artificiale</strong> come ChatGPT, Gemini, Claude o qualsiasi altra IA generativa. Il trucco è scrivere un <strong>unico prompt</strong> che chieda sia il testo della canzone sia il prompt per lo stile musicale da incollare su Suno.</p>
+
+      <div class="tip">
+        <strong>🔑 Come scrivere il prompt per l'IA:</strong><br><br>
+        Il prompt deve contenere due richieste:<br><br>
+        <strong>1. Il testo della canzone</strong> — spiega all'IA di cosa parla il brano<br>
+        <strong>2. Il prompt per lo stile</strong> — chiedi all'IA di generare anche una descrizione dello stile musicale da copiare nel campo "Style" di Suno
+      </div>
+
+      <div class="example">
+        <strong>💡 Esempio di prompt da dare all'IA:</strong><br><br>
+        <code>Mi serve un testo da inserire in Suno AI. Questo testo parla di Marco, un bravo ragazzo che sogna di diventare astronauta. Il testo deve avere una struttura con intro, versi, ritornello e outro.<br><br>Mi serve anche un prompt per lo stile: vorrei qualcosa anni '80, italo disco, con synth elettronici e ritmo ballabile.</code>
+      </div>
+
+      <p>L'IA ti restituirà il <strong>testo completo</strong> della canzone (pronto da incollare nel campo "Lyrics" di Suno) e il <strong>prompt per lo stile</strong> (da incollare nel campo "Style of Music"). Puoi modificare tutto manualmente prima di generare il brano.</p>
+
+      <div class="example">
+        <strong>💡 Altro esempio:</strong><br><br>
+        <code>Scrivimi un testo per Suno AI che parli di un'estate al mare con gli amici, nostalgia e spensieratezza. Voglio anche un prompt per lo stile: qualcosa tipo indie pop acustico, chitarra e ukulele, atmosfera calda e solare.</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">3</div>
+      <div class="card-title">La Struttura del Brano</div>
+      <div class="card-icon">🏗️</div>
+    </div>
+    <div class="card-body">
+      <p>Questo è <strong>il segreto più importante</strong>! Per brani altamente personalizzati, dividi il testo in componenti strutturali: <strong>intro, verso, ritornello, outro</strong>.</p>
+      <p>Inserisci le etichette fra parentesi quadre sopra la porzione di testo corrispondente: Suno AI le interpreterà come comandi e non le leggerà come testo cantato.</p>
+      <div class="tip">
+        <strong>🎯 Personalizza i componenti con aggettivi:</strong><br><br>
+        <strong>Versi:</strong> <code>[verso lento]</code> · <code>[verso veloce e ritmico]</code> · <code>[verso energetico]</code> · <code>[verso malinconico]</code> · <code>[verso pop]</code> · <code>[verso rap]</code><br><br>
+        <strong>Ritornelli:</strong> <code>[ritornello armonico]</code> · <code>[ritornello potente]</code> · <code>[ritornello sperimentale]</code>
+      </div>
+      <p>L'IA rispetterà esattamente le variazioni di ritmo e stile che hai indicato, anche all'interno dello stesso brano!</p>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">4</div>
+      <div class="card-title">Effetti Vocali tramite Formattazione</div>
+      <div class="card-icon">🎙️</div>
+    </div>
+    <div class="card-body">
+      <p>Puoi manipolare il modo in cui l'IA canta usando dei <strong>caratteri speciali</strong> all'interno di intro, versi o ritornelli:</p>
+      <div class="tip">
+        <strong>Parentesi tonde <code>( )</code></strong> dentro i versi → l'IA <strong>ripete</strong> l'ultima parola della frase.<br><br>
+        <strong>Puntini di sospensione <code>...</code></strong> a fine frase → l'IA <strong>allunga</strong> vocalmente la parola finale.<br><br>
+        <strong>Punto di domanda <code>?</code> / Esclamativo <code>!</code></strong> → modificano l'<strong>intonazione</strong> della frase.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">5</div>
+      <div class="card-title">Modalità Instrumental</div>
+      <div class="card-icon">🎸</div>
+    </div>
+    <div class="card-body">
+      <p>Se non vuoi la voce, abilita la funzione <strong>Instrumental</strong>: Suno AI dà il meglio di sé con le basi strumentali!</p>
+      <p>Perfetta per creare basi per <strong>video social e YouTube</strong> e per mischiare stili musicali inesplorati.</p>
+      <div class="example">
+        <strong>💡 Esempio spettacolare:</strong> fondi Flamenco ed EDM digitando<br>
+        <code>flamencofusionedm, ivybuscatchy</code><br>
+        I risultati sono sorprendenti!
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">6</div>
+      <div class="card-title">Per chi suona: Allenamento</div>
+      <div class="card-icon">🥁</div>
+    </div>
+    <div class="card-body">
+      <p>Suno AI è fantastica se suoni uno strumento e cerchi basi su cui esercitarti.</p>
+      <p>Abilita l'<strong>Instrumental</strong> e inserisci un prompt mirato, come <code>solo, guitar, intro, folk, acoustic</code>.</p>
+      <div class="tip">
+        <strong>🔑 Trucco in più:</strong> Scarica il brano generato e caricalo su <strong>Chordify</strong> o <strong>Riffstation</strong>: queste app rilevano automaticamente gli accordi, permettendoti di esercitarti facilmente con la chitarra o altri strumenti!
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">7</div>
+      <div class="card-title">Gestione Tracce & Ispirazione</div>
+      <div class="card-icon">💿</div>
+    </div>
+    <div class="card-body">
+      <p>Accanto a ogni brano generato trovi <strong>tre puntini</strong> che ti permettono di: riusare il prompt, estendere il brano, rinominarlo, aggiungerlo a una playlist, condividerlo, scaricarlo o eliminarlo.</p>
+      <div class="tip">
+        <strong>🔥 Trovare stili infallibili:</strong> Nella "Home" di Suno, esplora le canzoni di <strong>tendenza</strong> divise per genere (blues, funk, rap, rock, classical, jazz, metal, EDM…). Copia i prompt di queste tracce: essendo in tendenza, l'algoritmo li performa in modo eccellente!<br><br>
+        Esempi: <code>Art Rock Alternative</code> · <code>Dark Electronic Rock</code> · <code>Futuristic Alternative Rock</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="section-card">
+    <div class="card-header">
+      <div class="card-number">8</div>
+      <div class="card-title">Creare un Video Musicale Completo</div>
+      <div class="card-icon">🎬</div>
+    </div>
+    <div class="card-body">
+      <p>Puoi unire la canzone di Suno AI ad altre IA per creare un vero videoclip!</p>
+      <ol class="steps-list">
+        <li>Crea le immagini con IA come <strong>DALL-E</strong>, <strong>Leonardo</strong> o <strong>Midjourney</strong></li>
+        <li>Anima le immagini con strumenti come <strong>Runway</strong> o <strong>Kyber</strong></li>
+        <li>Unisci video e brano con qualsiasi software di <strong>video editing</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="vinyl-divider"><div class="vinyl"></div></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="hearts">🎵 🎹 🎷 🎺 🎻 🎵</div>
+    <p>Ricorda: Suno AI è uno strumento straordinario, ma a fare la vera differenza nella musica rimane sempre <strong style="color:var(--yellow);">il tocco umano</strong>. ✨</p>
+    <br>
+    <p style="color:#444;">Guida creata con ❤️ per gli amici</p>
+  </footer>
+
+</div>
+
+<script>
+// Generate floating music notes
+const notes = ['♪','♫','♬','🎵','🎶','🎤','🎸','🎹','🎷','🎺','🥁','🎻'];
+const container = document.getElementById('notes');
+for(let i=0; i<20; i++){
+  const el = document.createElement('span');
+  el.className = 'note';
+  el.textContent = notes[Math.floor(Math.random()*notes.length)];
+  el.style.left = Math.random()*100 + '%';
+  el.style.animationDuration = (12 + Math.random()*18) + 's';
+  el.style.animationDelay = Math.random()*15 + 's';
+  el.style.fontSize = (1.2 + Math.random()*1.5) + 'rem';
+  container.appendChild(el);
+}
+</script>
+</body>
+</html>
